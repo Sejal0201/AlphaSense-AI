@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
+    finnhub_api_key: str
+
     database_url: str
 
     backend_cors_origins: str

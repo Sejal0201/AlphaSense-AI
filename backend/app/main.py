@@ -1,37 +1,82 @@
-from fastapi import Depends, FastAPI
-from sqlalchemy import text
-from sqlalchemy.orm import Session
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.core.constants import API_DESCRIPTION, API_TITLE, API_VERSION
-from app.db.database import get_db
+from app.core.exceptions import (
+    generic_exception_handler,
+    http_exception_handler,
+)
+from app.core.middleware import log_requests
+from app.features.auth.api import router as auth_router
+from app.features.stocks.api import router as stocks_router
+from app.features.ai.api import router as ai_router
+
+# app = FastAPI(
+#     title=settings.app_name,
+#     version=settings.app_version,
+# )
 
 app = FastAPI(
-    title=API_TITLE,
-    version=API_VERSION,
-    description=API_DESCRIPTION,
+    title="AlphaSense AI API",
+    description="AI-powered financial analytics platform.",
+    version="1.0.0",
+    contact={
+        "name": "Sejal Jain",
+        "email": "your-email@example.com",
+    },
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "https://YOUR-VERCEL-APP.vercel.app",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# Register exception handlers
+app.add_exception_handler(
+    HTTPException,
+    http_exception_handler,
 )
 
+app.add_exception_handler(
+    Exception,
+    generic_exception_handler,
+)
+
+# Register middleware
+app.middleware("http")(log_requests)
+
+# Register routers
+app.include_router(
+    auth_router,
+    prefix=settings.api_v1_prefix,
+)
+
+app.include_router(
+    stocks_router,
+    prefix=settings.api_v1_prefix,
+)
+
+app.include_router(
+    ai_router,
+    prefix=settings.api_v1_prefix,
+)
 
 @app.get("/")
-def root():
+async def root():
     return {
-        "message": f"Welcome to {settings.app_name} 🚀",
-        "version": settings.app_version,
+        "status": "healthy",
+        "application": settings.app_name,
     }
 
 
 @app.get("/health")
-def health():
+async def health_check():
     return {
         "status": "healthy",
-    }
-
-
-@app.get("/db-check")
-def database_check(db: Session = Depends(get_db)):
-    db.execute(text("SELECT 1"))
-
-    return {
-        "database": "Connected Successfully ✅"
+        "application": settings.app_name,
+        "version": settings.app_version,
     }

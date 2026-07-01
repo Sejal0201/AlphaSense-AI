@@ -5,5 +5,6 @@ class Base(DeclarativeBase):
     pass
 
 
-# Import models here so Alembic can detect them
-from app.models.user import User  # noqa: E402,F401
+# Import every SQLAlchemy model here
+
+# from app.features.auth.models import User  # noqa: E402,F401
