@@ -1,0 +1,1 @@
+export { useSearchStocks } from "../../../hooks/useStocks";
