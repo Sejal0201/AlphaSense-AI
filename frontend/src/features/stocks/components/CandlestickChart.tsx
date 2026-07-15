@@ -79,8 +79,16 @@ export default function CandlestickChart({
 
     const series = chart.addSeries(CandlestickSeries);
 
-    series.setData(data);
+    // series.setData(data);
+    const validData = data.filter(
+      (candle) =>
+        candle.open != null &&
+        candle.high != null &&
+        candle.low != null &&
+        candle.close != null,
+    );
 
+    series.setData(validData);
     if (sma20?.length) {
       const sma20Series = chart.addSeries(LineSeries, {
         color: "#3B82F6",

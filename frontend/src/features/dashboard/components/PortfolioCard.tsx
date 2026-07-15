@@ -28,14 +28,25 @@ export default function PortfolioChart() {
     );
   }
 
+  // const chartData =
+  //   data?.candles.map((candle) => ({
+  //     date: new Date(candle.timestamp).toLocaleDateString("en-US", {
+  //       month: "short",
+  //       day: "numeric",
+  //     }),
+  //     price: candle.close,
+  //   })) ?? [];
+
   const chartData =
-    data?.candles.map((candle) => ({
-      date: new Date(candle.timestamp).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-      price: candle.close,
-    })) ?? [];
+    data?.candles
+      ?.filter((candle) => candle.close !== null)
+      .map((candle) => ({
+        date: new Date(candle.timestamp).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        }),
+        price: candle.close,
+      })) ?? [];
   return (
     <div className="w-full">
       {/* Time Range Buttons */}
